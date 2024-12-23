@@ -2,10 +2,10 @@ from datetime import datetime
 
 def get_deadline():
     while True:
-        date_input = input("Введите дату дедлайна (дд-мм-гггг): ")
+        issue_date = input("Введите дату дедлайна (дд-мм-гггг): ")
         try:
             # Преобразуем строку в объект datetime
-            deadline = datetime.strptime(date_input, "%d-%m-%Y")
+            deadline = datetime.strptime(issue_date, "%d-%m-%Y")
             return deadline
         except ValueError:
             print("Неверный формат даты! Пожалуйста, используйте формат дд-мм-гггг.")
