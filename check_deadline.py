@@ -1,26 +1,33 @@
+
 from datetime import datetime
 
-def get_deadline():
+def проверить_дедлайн():
     while True:
-        issue_date = input("Введите дату дедлайна (дд-мм-гггг): ")
+        # Запрос у пользователя даты дедлайна
+        issue_date_input = input("Введите дату дедлайна (в формате ДД.ММ.ГГГГ): ")
+
         try:
-            # Преобразуем строку в объект datetime
-            deadline = datetime.strptime(issue_date, "%d-%m-%Y")
-            return deadline
+            # Преобразование введенной строки в объект datetime
+            issue_date = datetime.strptime(issue_date_input, "%d.%m.%Y")
+            break  # Если преобразование прошло успешно, выходим из цикла
+
         except ValueError:
-            print("Неверный формат даты! Пожалуйста, используйте формат дд-мм-гггг.")
+            # Обработка ошибки при неверном формате даты
+            print("Некорректный формат даты. Пожалуйста, попробуйте снова.")
 
-def check_deadline(deadline):
+    # Получение текущей даты
     current_date = datetime.now()
-    if deadline < current_date:
-        print("Внимание! Дедлайн истёк!")
+
+    # Определение, истек ли дедлайн
+    if issue_date < current_date:
+        # Рассчитываем разницу в днях
+        days_overdue = (current_date - issue_date).days
+        print(f"Дедлайн истек на {days_overdue} {'день' if days_overdue == 1 else 'дня'} назад.")
     else:
-        remaining_days = (deadline - current_date).days
-        print(f"Дедлайн не истёк. Осталось дней: {remaining_days}")
+        # Рассчитываем количество оставшихся дней
+        days_remaining = (issue_date - current_date).days
+        print(f"Дедлайн еще не истек. Осталось {days_remaining} {'день' if days_remaining == 1 else 'дня'}.")
 
-def main():
-    deadline = get_deadline()
-    check_deadline(deadline)
+# Запуск функции для проверки дедлайна
+проверить_дедлайн()
 
-if __name__ == "__main__":
-    main()
