@@ -1,35 +1,19 @@
 from datetime import datetime
-import colorama
-from colorama import Fore, Back, Style
+import math
+from colorama import Fore, Back, Style, init
 
-colorama.init()
+init(autoreset=True)
 
 
-def display_notes(notes, level='full', sort_by=None, page_size=5):
-    """
-    Отображение списка заметок в удобном и понятном формате.
-
-    :param notes: Список заметок (каждая заметка — это словарь)
-    :param level: Уровень детализации ('full' — все поля, 'title_only' — только заголовки)
-    :param sort_by: Поле для сортировки ('date_created' или 'deadline')
-    :param page_size: Количество заметок на одну страницу при постраничном выводе
-    """
-
-    # Проверяем наличие заметок
+def display_notes(notes, page_size=5):
     if not notes:
         print(Fore.RED + "У вас нет сохранённых заметок." + Style.RESET_ALL)
         return
 
-    # Сортировка заметок по указанному полю
-    if sort_by == 'date_created':
-        sorted_notes = sorted(notes, key=lambda x: datetime.strptime(x['date_created'], '%d-%m-%Y'))
-    elif sort_by == 'deadline':
-        sorted_notes = sorted(notes, key=lambda x: datetime.strptime(x.get('deadline', '9999-99-99'), '%d-%m-%Y'))
-    else:
-        sorted_notes = notes
+    # Сортировка заметок по дате создания
+    sorted_notes = sorted(notes, key=lambda note: note.get('date_created', ''))
 
-    # Постраничный вывод
-    total_pages = len(sorted_notes) // page_size + (len(sorted_notes) % page_size > 0)
+    total_pages = math.ceil(len(sorted_notes) / page_size)
     current_page = 1
 
     while True:
@@ -38,58 +22,48 @@ def display_notes(notes, level='full', sort_by=None, page_size=5):
 
         for i in range(start_index, end_index):
             note = sorted_notes[i]
+            print(Fore.YELLOW + f'Заметка №{i + 1}:')
+            print(Fore.CYAN + f'Имя пользователя: {note["username"]}')
+            print(Fore.GREEN + f'Заголовок: {note["title"]}')
+            print(Fore.WHITE + f'Описание: {note["description"]}')
+            print(Fore.BLUE + f'Статус: {note["status"]}')
+            print(Fore.MAGENTA + f'Дата создания: {note["date_created"].strftime("%d-%m-%Y")}')
+            print(Fore.MAGENTA + f'Дедлайн: {note["deadline"].strftime("%d-%m-%Y")}')
+            print(Back.BLACK + '-' * 40 + Style.RESET_ALL)
 
-            print(Fore.GREEN + f"Заметка №{i + 1}:")
-            if level == 'full':
-                print(f"{Fore.YELLOW}Имя пользователя:{Style.RESET_ALL} {note['username']}")
-                print(f"{Fore.YELLOW}Заголовок:{Style.RESET_ALL} {note['title']}")
-                print(f"{Fore.YELLOW}Описание:{Style.RESET_ALL} {note['description']}")
-                print(f"{Fore.YELLOW}Статус:{Style.RESET_ALL} {note['status']}")
-                print(f"{Fore.YELLOW}Дата создания:{Style.RESET_ALL} {note['date_created']}")
-                print(f"{Fore.YELLOW}Дедлайн:{Style.RESET_ALL} {note.get('deadline', '-')}")
-            elif level == 'title_only':
-                print(f"{Fore.YELLOW}Заголовок:{Style.RESET_ALL} {note['title']}")
+        choice = input(
+            '\n' + Fore.YELLOW + f'Страница {current_page}/{total_pages}. Введите "н" для следующей страницы, "п" для предыдущей или "в" для выхода: ' + Style.RESET_ALL)
 
-            print('-' * 40)
-
-        if current_page < total_pages:
-            choice = input("Для перехода на следующую страницу нажмите Enter, для выхода введите 'q': ")
-            if choice.lower() == 'q':
-                break
+        if choice == 'н':
             current_page += 1
+        elif choice == 'п':
+            current_page -= 1
         else:
+            break
+
+        if current_page > total_pages or current_page <= 0:
             break
 
 
 # Тестовый список заметок
 notes = [
     {
-        'username': 'Алексей',
-        'title': 'Список покупок',
-        'description': 'Купить продукты на неделю',
-        'status': 'новая',
-        'date_created': '27-11-2024',
-        'deadline': '30-11-2024'
+        "username": "Алексей",
+        "title": "Список покупок",
+        "description": "Купить продукты на неделю",
+        "status": "новая",
+        "date_created": datetime.strptime("27-11-2024", "%d-%m-%Y"),
+        "deadline": datetime.strptime("30-11-2024", "%d-%m-%Y")
     },
     {
-        'username': 'Мария',
-        'title': 'Учеба',
-        'description': 'Подготовиться к экзамену',
-        'status': 'в процессе',
-        'date_created': '25-11-2024',
-        'deadline': '01-12-2024'
+        "username": "Мария",
+        "title": "Учеба",
+        "description": "Подготовиться к экзамену",
+        "status": "в процессе",
+        "date_created": datetime.strptime("25-11-2024", "%d-%m-%Y"),
+        "deadline": datetime.strptime("01-12-2024", "%d-%m-%Y")
     }
 ]
 
-# Вызов функции с различными параметрами
-print("\nПолный вывод всех заметок:")
+# Вызов функции
 display_notes(notes)
-
-print("\nТолько заголовки заметок:")
-display_notes(notes, level='title_only')
-
-print("\nСортировка по дате создания:")
-display_notes(notes, sort_by='date_created')
-
-print("\nСортировка по дедлайну:")
-display_notes(notes, sort_by='deadline')
