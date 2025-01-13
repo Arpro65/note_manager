@@ -18,7 +18,7 @@ def print_search_results(results):
         print("Заметки, соответствующие запросу, не найдены.")
 
 
-def search_notes(notes, keywords=[], status=None):
+def search_notes(notes, keywords=None, status=None):
     """
     Функция для поиска заметок по списку ключевых слов и/или статусу.
 
