@@ -1,28 +1,35 @@
-import yaml
-from pprint import pprint
+import sys
+import ruamel.yaml
+import os
+
 
 def load_notes_from_file(filename):
-    """Функция для загрузки заметок из файла и преобразования их в список словарей."""
+    """
+    Загружает заметки из указанного YAML-файла и выводит их в консоль в оригинальном формате.
 
-    notes = []  # Создаем пустой список для хранения заметок
+    :param filename: Путь к файлу с заметками.
+    :raises FileNotFoundError: Если файл не найден.
+    :raises PermissionError: Если нет прав на чтение файла.
+    :raises Exception: При возникновении любой другой ошибки.
+    """
+    if not os.path.exists(filename):
+        raise FileNotFoundError(f'Файл {filename} не найден.')
+
+    if not os.access(filename, os.R_OK):
+        raise PermissionError(f'Нет прав на чтение файла {filename}.')
 
     try:
         with open(filename, 'r', encoding='utf-8') as file:
-            # Открываем файл в режиме чтения с поддержкой кодировки UTF-8
-            content = file.read()  # Считываем весь контент файла
-            lines = content.split('---')  # Разделяем содержимое файла на отдельные заметки по разделителю ---
+            yaml = ruamel.yaml.YAML()
+            documents = list(yaml.load_all(file))
+            for doc in documents:
+                if isinstance(doc, dict):
+                    yaml.dump(doc, sys.stdout)
+                    print("---")  # Разделитель между документами
+    except Exception as e:
+        print(f'Произошла ошибка при чтении файла: {e}')
 
-            for note in lines:
-                if note.strip():  # Проверяем, чтобы строка не была пустой
-                    data = yaml.safe_load(note)  # Преобразуем строку в словарь с помощью YAML
-                    notes.append(data)  # Добавляем словарь в список заметок
-
-    except FileNotFoundError:
-        print(f'Файл {filename} не найден.')  # Обработчик ошибки, если файл не существует
-
-    return notes  # Возвращаем список заметок
 
 # Пример использования
 if __name__ == "__main__":
-    notes = load_notes_from_file('notes.yaml')
-    pprint(notes)
+    load_notes_from_file('notes.yaml')

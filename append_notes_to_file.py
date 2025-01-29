@@ -24,6 +24,11 @@ def get_max_note_number(filename):
                             max_number = number
     except FileNotFoundError:  # Если файл не найден, просто возвращаем 0
         pass
+    except PermissionError as e:
+        print(f"У вас недостаточно прав для записи в файл: {e}")
+    except OSError as e:
+        print(f"Произошла ошибка при записи в файл: {e}")
+
     return max_number
 
 
@@ -39,13 +44,13 @@ def append_notes_to_file(notes, filename='notes.yaml'):
     with open(filename, 'a', encoding='utf-8') as file:
         for note in notes:
             # Формируем структуру данных для записи в YAML
-            file.write(f'Заметка №{current_note_number}\n')  # Записываем номер заметки
-            file.write(f'Имя пользователя: {note.get("username", "")}\n')  # Записываем имя пользователя
-            file.write(f'Заголовок: {note.get("title", "")}\n')  # Записываем заголовок
-            file.write(f'Описание: {note.get("content", "")}\n')  # Записываем описание
-            file.write(f'Статус: {note.get("status", "")}\n')  # Записываем статус
-            file.write(f'Дата создания: {note.get("created_date", datetime.now().strftime("%Y-%m-%d %H:%M:%S"))}\n')  # Записываем дату создания
-            file.write(f'Дедлайн: {note.get("issue_date", "")}\n')  # Записываем дедлайн
+            file.write(f'Заметка №{current_note_number}:\n')  # Записываем номер заметки
+            file.write(f'  Имя пользователя: {note.get("username", "")}\n')  # Записываем имя пользователя
+            file.write(f'  Заголовок: {note.get("title", "")}\n')  # Записываем заголовок
+            file.write(f'  Описание: {note.get("content", "")}\n')  # Записываем описание
+            file.write(f'  Статус: {note.get("status", "")}\n')  # Записываем статус
+            file.write(f'  Дата создания: {note.get("created_date", datetime.now().strftime("%Y-%m-%d"))}\n')  # Записываем дату создания
+            file.write(f'  Дедлайн: {note.get("issue_date", "")}\n')  # Записываем дедлайн
             file.write("\n---\n")  # Разделяем заметки тройным дефисом
 
             current_note_number += 1  # Увеличиваем счетчик для следующей заметки
@@ -59,7 +64,7 @@ if __name__ == "__main__":
             'title': 'Заметка 1',
             'content': 'Это первая добавленная заметка.',
             'status': 'Новая',
-            'created_date': '2023-10-01 12:00:00',
+            'created_date': '2023-10-01',
             'issue_date': '2023-11-30'
         },
         {
@@ -67,7 +72,7 @@ if __name__ == "__main__":
             'title': 'Заметка 2',
             'content': 'Это вторая добавленная заметка.',
             'status': 'В процессе',
-            'created_date': '2023-09-15 14:30:00',
+            'created_date': '2023-09-15',
             'issue_date': '2023-10-31'
         }
     ]

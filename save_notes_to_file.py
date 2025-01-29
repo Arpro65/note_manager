@@ -1,3 +1,4 @@
+import ruamel.yaml
 from datetime import datetime
 
 notes = [
@@ -19,21 +20,42 @@ notes = [
     }
 ]
 
+
 def save_notes_to_file(notes, filename):
+    try:
+        # Создаем объект YAML
+        yaml = ruamel.yaml.YAML()
 
-    # Открываем файл в режиме записи, если файл не существует, он будет создан
-    with open(filename, 'w', encoding='utf-8') as file:
+        # Устанавливаем стиль представления для строковых значений
+        yaml.default_flow_style = False
 
-        for i, note in enumerate(notes, start=1):
+        # Открываем файл в режиме записи
+        with open(filename, 'w', encoding='utf-8') as file:
+            # Проходимся по каждому элементу списка заметок
+            for i, note in enumerate(notes, start=1):
+                # Формируем словарь для одной заметки
+                note_dict = {
+                    f"Заметка №{i}": {
+                        "Имя пользователя": note["username"],
+                        "Заголовок": note["title"],
+                        "Описание": note["content"],
+                        "Статус": note["status"],
+                        "Дата создания": note["created_date"].strftime("%Y-%m-%d"),
+                        "Дедлайн": note["issue_date"].strftime("%Y-%m-%d")
+                    }
+                }
 
-            file.write(f"Заметка № {i}" + "\n")
-            file.write(f"Имя пользователя: {note['username']}\n")
-            file.write(f"Заголовок: {note['title']}\n")
-            file.write(f"Описание: {note['content']}\n")
-            file.write(f"Статус: {note['status']}\n")
-            file.write(f"Дата создания: {note['created_date'].strftime('%Y-%m-%d %H:%M:%S')}\n")
-            file.write(f"Дедлайн: {note['issue_date'].strftime('%Y-%m-%d %H:%M:%S')}\n")
-            file.write("---" + "\n\n")
+                # Сохраняем текущую заметку в файл
+                yaml.dump(note_dict, file)
+
+                # Добавляем разделитель между заметками
+                file.write("\n---\n")
+    except OSError as e:
+        print(f"Произошла ошибка при работе с файлом: {e}")
+    except KeyError as e:
+        print(f"В одном из элементов отсутствует необходимое поле: {e}")
+    except Exception as e:
+        print(f"Произошла непредвиденная ошибка: {e}")
 
 # Вызов функции для сохранения заметок в файл
-save_notes_to_file(notes, "notes.txt")
+save_notes_to_file(notes, "notes.yaml")
